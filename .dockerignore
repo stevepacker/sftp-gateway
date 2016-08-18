@@ -1,0 +1,4 @@
+/node_modules
+/*.log
+/config.yml
+/ssh_host_rsa_key*
