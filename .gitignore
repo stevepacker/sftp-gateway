@@ -1,0 +1,8 @@
+/.idea
+/config.yml
+/ssh_host_rsa_key
+/node_modules
+/uploads
+/*.log
+/*.log.gz
+/ssh_host_rsa_key*

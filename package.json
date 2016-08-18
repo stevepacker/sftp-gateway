@@ -1,0 +1,21 @@
+{
+  "name": "sftp-gateway",
+  "version": "1.0.0",
+  "description": "Takes SFTP-uploaded files and pushes them to an HTTP endpoint",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Stephen Packer <steve@stevepacker.com>",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "config-yml": "^0.6.1",
+    "lodash": "^4.15.0",
+    "node-rsa": "^0.4.0",
+    "request": "^2.74.0",
+    "ssh2": "^0.5.0",
+    "winston": "^2.2.0"
+  }
+}

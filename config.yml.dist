@@ -1,0 +1,17 @@
+sftp:
+  port: 2222
+  banner: SFTP Server
+  maxUploadBytes: 50000000
+  saveUploads: uploads
+  users:
+    alice:
+      password: foo
+    steve:
+      publickey: ssh-rsa A...t
+
+http:
+  url: http://192.168.1.2:8080/upload-file
+  postValues:
+    a: b
+    c: d
+
