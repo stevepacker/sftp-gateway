@@ -8,13 +8,14 @@ USER root
 COPY package.json /tmp/package.json
 RUN cd /tmp && npm install
 
-COPY . /app/
+COPY . /srv/
 
-RUN mv /tmp/node_modules /app/ \
+RUN mv /tmp/node_modules /srv/ \
     && rm /tmp/package.json \
-    && chown -Rf node:node /app \
-    && ls -la /app
+    && chown -Rf node:node /srv \
+    && ls -la /srv
 
 USER node
+WORKDIR /srv
 
 CMD ["supervisor", "--non-interactive", "--timestamp", "--no-restart-on success", "index.js"]
