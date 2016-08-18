@@ -14,6 +14,7 @@ COPY . /app/
 
 RUN mv /tmp/node_modules /app/ \
     && rm /tmp/package.json \
+    && chown -Rf node:node /app \
     && ls -la
 
 USER node
