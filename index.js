@@ -79,6 +79,7 @@ sftpd.on('fileUploadDone', function(filename, client) {
         // attach the uploaded file
         formData[filename] = {
             value: fileBuffer[filename],
+            username: client.username,
             options: {
                 filename: filename,
                 contentType: 'application/octet-stream'
