@@ -4,7 +4,7 @@ var _       = require('lodash');
 var fs      = require('fs');
 var config  = require('config-yml');
 var request = require('request');
-var log     = require('./lib/logger');
+var log     = require('./lib/logger')('app.log');
 var sftpd   = require('./lib/sftpd');
 
 if (! config.sftp) {
@@ -26,13 +26,16 @@ if (config.sftp.banner) {
 sftpd.maxUploadBytes = config.sftp.maxUploadBytes || 1024 * 1024 * 50; // 50M
 sftpd.users          = config.sftp.users;
 
+// nice to have logging of sftpd, but it's not necessary in production
+sftpd.log.clear();
+
 sftpd.on('clientAuthenticated', function(client) {
     log.info('New authenticated client:', client.username, '@', client.ip);
 });
 
 // prepare to store uploaded files in a buffer
 var fileBuffer = {};
-sftpd.on('fileUploadPart', function(filename, data, offset) {
+sftpd.on('fileUploadPart', function(filename, data, offset, client) {
     var bufferSize = offset + data.length;
 
     if (! fileBuffer[filename]) {
@@ -49,9 +52,8 @@ sftpd.on('fileUploadPart', function(filename, data, offset) {
 });
 
 // after a file is uploaded
-sftpd.on('fileUploadDone', function(filename) {
-    log.warn('fileUpload at index', arguments);
-    log.warn('fileBuffer: ', _.keys(fileBuffer), fileBuffer[filename].length);
+sftpd.on('fileUploadDone', function(filename, client) {
+    log.info('fileUpload', filename, fileBuffer[filename].length, client.username);
 
     // ignore files that exceed upload max size
     if (fileBuffer[filename].length > sftpd.maxUploadBytes) {
@@ -64,13 +66,13 @@ sftpd.on('fileUploadDone', function(filename) {
         var dumpFile = uploadDir + '/' +
             now.toJSON().replace(/:/g, '-') +
             '_' + filename;
-        log.info('Dumping to file: ', fileBuffer[filename].length, dumpFile);
+        log.info('Dumping to file: ', fileBuffer[filename].length, dumpFile, client.username);
         fs.writeFileSync(dumpFile, fileBuffer[filename]);
     }
 
     // proxy files out, if requested
     if (config.http && config.http.url) {
-        log.info('Pushing file to HTTP endpoint...', config.http.url);
+        log.info('Pushing file to HTTP endpoint...', config.http.url, client.username);
         // let config define if additional POST values are added
         var formData = config.http.postValues || {};
 
@@ -90,9 +92,9 @@ sftpd.on('fileUploadDone', function(filename) {
         }, function(err, httpResponse, body) {
             if (err) {
                 sftpd.close();
-                return log.error('upload failed:', err);
+                return log.error('upload failed:', err, client.username);
             }
-            log.info('HTTP Response:', body);
+            log.info('HTTP Response:', body, client.username);
         });
     }
 
