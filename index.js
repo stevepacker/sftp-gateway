@@ -4,6 +4,7 @@ var _       = require('lodash');
 var fs      = require('fs');
 var config  = require('config-yml');
 var request = require('request');
+var mailer  = require('nodemailer');
 var log     = require('./lib/logger')('app.log');
 var sftpd   = require('./lib/sftpd');
 
@@ -68,6 +69,29 @@ sftpd.on('fileUploadDone', function(filename, client) {
             '_' + filename;
         log.info('Dumping to file: ', fileBuffer[filename].length, dumpFile, client.username);
         fs.writeFileSync(dumpFile, fileBuffer[filename]);
+    }
+
+    // email notify, if requested
+    if (config.email && config.email.from && config.email.to && config.email.dsn) {
+        mailer.createTransport(config.email.dsn).sendMail(
+            {
+                from: config.email.from,
+                to: config.email.to,
+                subject: config.email.subject,
+                text: 'A file was just uploaded through SFTP-Gateway.' + "\n\n" +
+                    'Username:   ' + client.username + "\n" +
+                    'IP Address: ' + client.ip + "\n" +
+                    'Filename:   ' + filename + "\n" +
+                    'Filesize:   ' + fileBuffer[filename].length + "\n" +
+                    "\n\nCheers!"
+            },
+            function(error, info){
+                if (error){
+                    return log.warn(error);
+                }
+                log.info('Email sent: ' + info.response);
+            }
+        );
     }
 
     // proxy files out, if requested

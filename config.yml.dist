@@ -15,3 +15,9 @@ http:
     a: b
     c: d
 
+email:
+  # see https://nodemailer.com/
+  dsn: smtp://aspmx.l.google.com
+  from: no-reply@example.com
+  to: notify@example.com # comma-separated list of recipients
+  subject: SFTP-Gateway file uploaded
