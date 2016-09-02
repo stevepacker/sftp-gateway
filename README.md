@@ -7,10 +7,9 @@ creates an SFTP server with the sole function of
 allowing file uploads.  The SFTP server is write-only
 and so there is no visiblity into the filesystem.
 
-On upload, the file can be saved to the local filesystem.
-
-Additionally, an uploaded file can be pushed to 
-an HTTP endpoint as a POST request.
+* An uploaded file can be saved to the local filesystem.
+* An uploaded file can be pushed to an HTTP endpoint as a POST request.
+* An uploaded file can trigger an email notification.
 
 ### Configuration
 

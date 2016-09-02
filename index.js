@@ -98,12 +98,25 @@ sftpd.on('fileUploadDone', function(filename, client) {
     if (config.http && config.http.url) {
         log.info('Pushing file to HTTP endpoint...', config.http.url, client.username);
         // let config define if additional POST values are added
-        var formData = config.http.postValues || {};
+        var formData = {
+            username: client.username
+        };
+
+        if (config.http.postValues) {
+            _.forOwn(config.http.postValues, function(value, key) {
+                // run variable replacement
+                formData[key] = _.template(value)({
+                    username:   client.username,
+                    ip:         client.ip,
+                    timestamp:  _.now() / 1000,
+                    datetime:   new Date().toISOString()
+                });
+            });
+        }
 
         // attach the uploaded file
         formData[filename] = {
             value: fileBuffer[filename],
-            username: client.username,
             options: {
                 filename: filename,
                 contentType: 'application/octet-stream'
